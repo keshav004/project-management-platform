@@ -4,7 +4,8 @@ import {
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { Auth } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-login',
@@ -20,6 +21,10 @@ export class Login {
   //constructor(private readonly fb: FormBuilder) {}
 
   private readonly formBuilder = inject(FormBuilder);
+
+  private readonly authService = inject(Auth);
+  
+  private readonly router = inject(Router);
 
   isPasswordVisible = false;
   isLoading = false;
@@ -66,6 +71,20 @@ export class Login {
     this.isLoading = true;
 
     const loginRequest = this.loginForm.getRawValue();
+
+    this.authService.login(loginRequest).subscribe({
+      next: (response) => {
+        console.log('Login Response:', response);
+        
+        this.isLoading = false;
+        this.router.navigate(['/dashboard']); // Navigate to the dashboard after successful login
+      },
+      error: (error) => {
+        console.error('Login Error:', error);
+        this.isLoading = false;
+        // Handle login error (e.g., display error message)
+      }
+    });
 
     console.log('Login Request:', loginRequest);
 
