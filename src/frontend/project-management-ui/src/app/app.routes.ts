@@ -3,6 +3,12 @@ import { MainLayout } from './layouts/main-layout/main-layout';
 
 export const routes: Routes = [
     {
+    path: 'login',
+    loadComponent: () =>
+    import('./features/auth/login/login')
+        .then(m => m.Login)
+    },
+    {
     path: '',
     component: MainLayout,
     children: [
@@ -18,6 +24,11 @@ export const routes: Routes = [
           import('./features/dashboard/dashboard')
             .then(m => m.Dashboard)
       }
-    ]
-  }
+      ]
+    },
+
+    {
+    path: '**',
+    redirectTo: 'login'
+    } 
 ];
