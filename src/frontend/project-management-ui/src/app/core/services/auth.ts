@@ -10,7 +10,7 @@ import { tap } from 'rxjs/internal/operators/tap';
 export class Auth {
   private readonly http = inject(HttpClient);
 
-  private readonly apiUrl = 'https://localhost:7001/api/auth';
+  private readonly apiUrl = 'https://localhost:44318/api/Auth';
 
   private readonly accessTokenKey = 'access_token';
   private readonly refreshTokenKey = 'refresh_token';

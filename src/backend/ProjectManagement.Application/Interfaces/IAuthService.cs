@@ -1,0 +1,20 @@
+﻿using ProjectManagement.Application.DTOs;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ProjectManagement.Application.Interfaces
+{
+    public interface IAuthService
+    {
+        Task<LoginResponse> LoginAsync(LoginRequest request);
+
+        Task RegisterAsync(RegisterRequest request);
+
+        Task<LoginResponse> RefreshTokenAsync(string refreshToken);
+
+        Task LogoutAsync(Guid userId);
+    }
+}
