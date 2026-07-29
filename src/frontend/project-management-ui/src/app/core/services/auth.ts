@@ -41,20 +41,20 @@ export class Auth {
 
   register(
     request: any
-    ): 
+  ):
     Observable<any> {
     return this.http
-    .post<any>(
-      `${this.apiUrl}/register`, 
+      .post<any>(
+        `${this.apiUrl}/register`,
         request);
   }
 
   logout(refreshToken: string) {
-  return this.http.post(
-    `${this.apiUrl}/logout`,
-    { refreshToken }
-  );
-}
+    return this.http.post(
+      `${this.apiUrl}/logout`,
+      { refreshToken }
+    );
+  }
 
   refreshToken() {
 
@@ -63,6 +63,25 @@ export class Auth {
       {
         refreshToken: this.getRefreshToken()
       }
+    );
+
+  }
+
+  forgotPassword(email: string | null) {
+
+    return this.http.post(
+      `${this.apiUrl}/forgot-password`,
+      { email }
+    );
+
+  }
+
+
+  resetPassword(request: any) {
+
+    return this.http.post(
+      `${this.apiUrl}/reset-password`,
+      request
     );
 
   }

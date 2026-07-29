@@ -15,12 +15,16 @@ namespace ProjectManagement.Application.Services
         private readonly ITokenService _tokenService;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
-        public AuthService(IUserRepository userRepository,ITokenService tokenService, IPasswordHasher passwordHasher, IRefreshTokenRepository refreshTokenRepository) 
+        private readonly IPasswordResetTokenRepository _passwordResetTokenRepository;
+        private readonly IEmailService _emailService;
+        public AuthService(IUserRepository userRepository,ITokenService tokenService, IPasswordHasher passwordHasher, IRefreshTokenRepository refreshTokenRepository, IPasswordResetTokenRepository passwordResetTokenRepository, IEmailService emailService) 
         {
             _userRepository = userRepository;
             _tokenService = tokenService;
             _passwordHasher = passwordHasher;
             _refreshTokenRepository = refreshTokenRepository;
+            _passwordResetTokenRepository = passwordResetTokenRepository;
+            _emailService = emailService;
         }
 
         public async Task<LoginResponse> LoginAsync(LoginRequest request)
@@ -140,6 +144,56 @@ namespace ProjectManagement.Application.Services
             refreshToken.RevokedAt = DateTime.UtcNow;
 
             await _refreshTokenRepository.SaveChangesAsync();
+        }
+
+        public async Task ForgotPasswordAsync(ForgotPasswordRequest request)
+        {
+            var user = await _userRepository.GetByEmailAsync(request.Email);
+
+            if (user is null)
+            {
+                return;
+            }
+
+            var token = new PasswordResetToken
+            {
+                Token = Guid.NewGuid().ToString("N"),
+                UserId = user.Id,
+                CreatedAt = DateTime.UtcNow,
+                ExpiryDate = DateTime.UtcNow.AddMinutes(30)
+            };
+
+            await _passwordResetTokenRepository.AddAsync(token);
+
+            await _passwordResetTokenRepository.SaveChangesAsync();
+
+            var resetLink =
+                $"http://localhost:4200/reset-password?token={token.Token}";
+
+            await _emailService.SendPasswordResetEmailAsync(
+                user.Email,
+                resetLink);
+        }
+
+        public async Task ResetPasswordAsync(ResetPasswordRequest request)
+        {
+            var token =
+                await _passwordResetTokenRepository
+                    .GetByTokenAsync(request.Token);
+
+            if (token is null || !token.IsActive)
+            {
+                throw new UnauthorizedAccessException(
+                    "Invalid or expired reset token.");
+            }
+
+            token.User.PasswordHash =
+                _passwordHasher.HashPassword(request.Password);
+
+            token.IsUsed = true;
+            token.UsedAt = DateTime.UtcNow;
+
+            await _passwordResetTokenRepository.SaveChangesAsync();
         }
     }
 }

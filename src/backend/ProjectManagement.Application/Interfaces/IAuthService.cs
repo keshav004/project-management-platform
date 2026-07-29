@@ -16,5 +16,9 @@ namespace ProjectManagement.Application.Interfaces
         Task<LoginResponse> RefreshTokenAsync(RefreshTokenRequest request);
 
         Task LogoutAsync(LogoutRequest request);
+
+        Task ForgotPasswordAsync(ForgotPasswordRequest request);
+
+        Task ResetPasswordAsync(ResetPasswordRequest request);
     }
 }

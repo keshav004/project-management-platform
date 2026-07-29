@@ -45,6 +45,11 @@ namespace ProjectManagement.Infrastructure.Persistence.Configurations
                    .WithOne(x => x.User)
                    .HasForeignKey(x => x.UserId)
                    .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(x => x.PasswordResetTokens)
+                   .WithOne(x => x.User)
+                   .HasForeignKey(x => x.UserId)
+                   .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
