@@ -1,0 +1,13 @@
+@use "../login/login.scss";
+
+.password-rules {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.password-rules small {
+  color: #dc3545;
+  font-size: 0.8rem;
+}

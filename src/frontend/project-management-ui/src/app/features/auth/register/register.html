@@ -1,0 +1,172 @@
+<div class="login-page">
+
+    <div class="login-container">
+
+        <div class="brand-section">
+
+            <div class="brand-icon">
+                ▦
+            </div>
+
+            <h1>TaskFlow</h1>
+
+            <p>Create your account</p>
+
+        </div>
+
+
+        <div class="login-card">
+
+            <div class="card-header">
+
+                <h2>Create Account</h2>
+
+                <p>Start managing your projects today</p>
+
+            </div>
+
+
+            <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="login-form">
+
+                <!-- First Name -->
+
+                <div class="form-group">
+
+                    <label>First Name</label>
+
+                    <input type="text" formControlName="firstName" placeholder="John">
+
+                </div>
+
+
+                <!-- Last Name -->
+
+                <div class="form-group">
+
+                    <label>Last Name</label>
+
+                    <input type="text" formControlName="lastName" placeholder="Doe">
+
+                </div>
+
+
+                <!-- Email -->
+
+                <div class="form-group">
+
+                    <label>Email</label>
+
+                    <input type="email" formControlName="email" placeholder="john@example.com">
+
+                </div>
+
+
+                <!-- Password -->
+
+                <div class="form-group">
+
+                    <label>Password</label>
+
+                    <div class="password-wrapper">
+
+                        <input [type]="isPasswordVisible ? 'text' : 'password'" formControlName="password">
+
+                        <button type="button" class="password-toggle" (click)="togglePasswordVisibility()">
+
+                            {{ isPasswordVisible ? 'Hide' : 'Show' }}
+
+                        </button>
+
+                        @if (password.touched && password.hasError('passwordStrength')) {
+                        
+                        <div class="password-rules">
+                        
+                            @if (!password.errors?.['passwordStrength'].hasMinimumLength) {
+                            <small>• Minimum 8 characters</small>
+                            }
+                        
+                            @if (!password.errors?.['passwordStrength'].hasUpperCase) {
+                            <small>• One uppercase letter</small>
+                            }
+                        
+                            @if (!password.errors?.['passwordStrength'].hasLowerCase) {
+                            <small>• One lowercase letter</small>
+                            }
+                        
+                            @if (!password.errors?.['passwordStrength'].hasNumber) {
+                            <small>• One number</small>
+                            }
+                        
+                            @if (!password.errors?.['passwordStrength'].hasSpecialCharacter) {
+                            <small>• One special character</small>
+                            }
+                        
+                        </div>
+                        
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <!-- Confirm Password -->
+
+                <div class="form-group">
+
+                    <label>Confirm Password</label>
+
+                    <input [type]="isPasswordVisible ? 'text' : 'password'" formControlName="confirmPassword">
+
+                    @if (confirmPassword.touched &&
+                    confirmPassword.hasError('passwordMismatch')) {
+
+                    <span class="error-message">
+                        Passwords do not match
+                    </span>
+
+                    }
+
+                </div>
+
+
+                <button class="login-button" type="submit" [disabled]="isLoading">
+
+                    @if(isLoading){
+
+                    Creating Account...
+
+                    }
+
+                    @else{
+
+                    Create Account
+
+                    }
+
+                </button>
+
+            </form>
+
+
+            <div class="register-section">
+
+                <span>
+
+                    Already have an account?
+
+                </span>
+
+                <a routerLink="/login">
+
+                    Sign In
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

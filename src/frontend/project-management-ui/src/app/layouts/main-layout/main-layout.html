@@ -1,0 +1,116 @@
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+    <div class="brand">
+      <span class="brand-icon">▦</span>
+      <span class="brand-name">TaskFlow</span>
+    </div>
+
+    <nav class="navigation">
+
+      <a routerLink="/dashboard"
+         routerLinkActive="active"
+         [routerLinkActiveOptions]="{ exact: true }"
+         class="nav-item">
+
+        <span class="nav-icon">⌂</span>
+        <span>Dashboard</span>
+
+      </a>
+
+      <a routerLink="/projects"
+         routerLinkActive="active"
+         class="nav-item">
+
+        <span class="nav-icon">▣</span>
+        <span>Projects</span>
+
+      </a>
+
+      <a routerLink="/tasks"
+         routerLinkActive="active"
+         class="nav-item">
+
+        <span class="nav-icon">✓</span>
+        <span>My Tasks</span>
+
+      </a>
+
+      <a routerLink="/users"
+         routerLinkActive="active"
+         class="nav-item">
+
+        <span class="nav-icon">♙</span>
+        <span>Users</span>
+
+      </a>
+
+    </nav>
+
+    <div class="sidebar-footer">
+
+      <a routerLink="/profile"
+         routerLinkActive="active"
+         class="nav-item">
+
+        <span class="nav-icon">⚙</span>
+        <span>Settings</span>
+
+      </a>
+
+      <button class="logout-button" (click)="logout()">
+        <span class="nav-icon">↪</span>
+        <span>Logout</span>
+      </button>
+
+    </div>
+
+  </aside>
+
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Topbar -->
+    <header class="topbar">
+
+      <div class="page-title">
+        Project Management
+      </div>
+
+      <div class="topbar-actions">
+
+        <button class="notification-button">
+          🔔
+        </button>
+
+        <div class="user-menu">
+          <div class="avatar">
+            K
+          </div>
+
+          <div class="user-info">
+            <span class="user-name">Keshav Raj</span>
+            <span class="user-role">Developer</span>
+          </div>
+
+          <span class="dropdown-icon">⌄</span>
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <!-- Page Content -->
+    <section class="content-area">
+
+      <router-outlet></router-outlet>
+
+    </section>
+
+  </main>
+
+</div>
