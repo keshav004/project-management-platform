@@ -39,6 +39,15 @@ export class Auth {
       );
   }
 
+  register(
+    request: any
+    ): 
+    Observable<any> {
+    return this.http
+    .post<any>(
+      `${this.apiUrl}/register`, 
+        request);
+  }
 
   private storeTokens(
     accessToken: string,
