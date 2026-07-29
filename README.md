@@ -156,7 +156,7 @@ ProjectManagement
 ## Clone Repository
 
 ```bash
-git clone https://github.com/<your-username>/project-management-platform.git
+git clone https://github.com/keshav004/project-management-platform.git
 ```
 
 ## Backend
