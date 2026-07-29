@@ -14,11 +14,13 @@ namespace ProjectManagement.Application.Services
         private readonly IUserRepository _userRepository;
         private readonly ITokenService _tokenService;
         private readonly IPasswordHasher _passwordHasher;
-        public AuthService(IUserRepository userRepository,ITokenService tokenService, IPasswordHasher passwordHasher) 
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
+        public AuthService(IUserRepository userRepository,ITokenService tokenService, IPasswordHasher passwordHasher, IRefreshTokenRepository refreshTokenRepository) 
         {
             _userRepository = userRepository;
             _tokenService = tokenService;
             _passwordHasher = passwordHasher;
+            _refreshTokenRepository = refreshTokenRepository;
         }
 
         public async Task<LoginResponse> LoginAsync(LoginRequest request)
@@ -30,20 +32,26 @@ namespace ProjectManagement.Application.Services
                 throw new UnauthorizedAccessException("Invalid email or password.");
             }
 
+            // Generate access token and refresh token
             var accessToken = _tokenService.GenerateAccessToken(user);
-            var refreshToken = _tokenService.GenerateRefreshToken();
 
-            //if(request.RememberMe)
-            //{
-            //    user.RefreshTokens.Add(refreshToken);
-            //    await _userRepository.UpdateAsync(user);
-            //    await _userRepository.SaveChangesAsync();
-            //}
+            var refreshToken = new RefreshToken
+            {
+                Id = Guid.NewGuid(),
+                Token = _tokenService.GenerateRefreshToken(),
+                CreatedAt = DateTime.UtcNow,
+                ExpiryDate = request.RememberMe ? DateTime.UtcNow.AddDays(30) : DateTime.UtcNow.AddDays(1),
+                UserId = user.Id
+            };
+
+            await _refreshTokenRepository.AddAsync(refreshToken);
+
+            await _refreshTokenRepository.SaveChangesAsync();
 
             return new LoginResponse
             {
                 AccessToken = accessToken,
-                RefreshToken = refreshToken,
+                RefreshToken = refreshToken.Token,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(60)
             };
         }
@@ -72,23 +80,66 @@ namespace ProjectManagement.Application.Services
             await _userRepository.SaveChangesAsync();
         }
 
-        public async Task<LoginResponse> RefreshTokenAsync(string refreshToken)
+        public async Task<LoginResponse> RefreshTokenAsync(RefreshTokenRequest request)
         {
-            throw new NotImplementedException();
+            var existingToken = await _refreshTokenRepository.GetAsync(request.RefreshToken);
 
+            if (existingToken is null)
+            {
+                throw new UnauthorizedAccessException("Invalid refresh token.");
+            }
+
+            if (!existingToken.IsActive)
+            {
+                throw new UnauthorizedAccessException("Refresh token has expired or has been revoked.");
+            }
+
+            var user = existingToken.User;
+
+            var accessToken =
+                _tokenService.GenerateAccessToken(user);
+
+            existingToken.IsRevoked = true;
+            existingToken.RevokedAt = DateTime.UtcNow;
+
+            var newRefreshToken = new RefreshToken
+            {
+                Token = _tokenService.GenerateRefreshToken(),
+                CreatedAt = DateTime.UtcNow,
+                ExpiryDate = existingToken.ExpiryDate,
+                UserId = user.Id
+            };
+
+            await _refreshTokenRepository.AddAsync(newRefreshToken);
+
+            await _refreshTokenRepository.SaveChangesAsync();
+
+            return new LoginResponse
+            {
+                AccessToken = accessToken,
+                RefreshToken = newRefreshToken.Token,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(60)
+            };
         }
 
-        public async Task LogoutAsync(Guid userId)
+        public async Task LogoutAsync(LogoutRequest request)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user == null)
+            var refreshToken = await _refreshTokenRepository.GetAsync(request.RefreshToken);
+
+            if (refreshToken is null)
             {
-                throw new InvalidOperationException("User not found.");
+                return;
             }
-            // Invalidate the refresh token by removing it from the user's refresh tokens collection
-            user.RefreshTokens.Clear();
-            await _userRepository.UpdateAsync(user);
-            await _userRepository.SaveChangesAsync();
+
+            if (refreshToken.IsRevoked)
+            {
+                return;
+            }
+
+            refreshToken.IsRevoked = true;
+            refreshToken.RevokedAt = DateTime.UtcNow;
+
+            await _refreshTokenRepository.SaveChangesAsync();
         }
     }
 }

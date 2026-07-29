@@ -49,7 +49,25 @@ export class Auth {
         request);
   }
 
-  private storeTokens(
+  logout(refreshToken: string) {
+  return this.http.post(
+    `${this.apiUrl}/logout`,
+    { refreshToken }
+  );
+}
+
+  refreshToken() {
+
+    return this.http.post<LoginResponse>(
+      `${this.apiUrl}/refresh`,
+      {
+        refreshToken: this.getRefreshToken()
+      }
+    );
+
+  }
+
+  storeTokens(
     accessToken: string,
     refreshToken: string
   ): void {
@@ -81,23 +99,14 @@ export class Auth {
     );
   }
 
+  clear(): void {
+    localStorage.removeItem(this.accessTokenKey);
+    localStorage.removeItem(this.refreshTokenKey);
+  }
 
   isAuthenticated(): boolean {
 
     return !!this.getAccessToken();
 
   }
-
-
-  logout(): void {
-
-    localStorage.removeItem(
-      this.accessTokenKey
-    );
-
-    localStorage.removeItem(
-      this.refreshTokenKey
-    );
-
-  } 
 }

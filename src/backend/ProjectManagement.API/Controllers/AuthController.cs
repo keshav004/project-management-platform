@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Mvc;
 using ProjectManagement.Application.DTOs;
 using ProjectManagement.Application.Interfaces;
 
@@ -48,20 +49,35 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("refresh")]
-    public IActionResult Refresh()
+    public async Task<IActionResult> Refresh([FromBody]RefreshTokenRequest request)
     {
-        return Ok(new
+        if (!ModelState.IsValid) {
+            return BadRequest(ModelState);
+        }
+
+        var response = await _authService.RefreshTokenAsync(request);
+
+        if(response == null)
         {
-            message = "Login endpoint is working"
-        });
+            return BadRequest(new
+            {
+                message = "Invalid refresh token"
+            }
+            );
+        }
+        return Ok(response);
     }
 
     [HttpPost("logout")]
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout([FromBody]LogoutRequest request)
     {
-        return Ok(new
+        if (!ModelState.IsValid)
         {
-            message = "Login endpoint is working"
-        });
+            return BadRequest(ModelState);
+        }
+
+        await _authService.LogoutAsync(request);
+
+        return NoContent();
     }
 }

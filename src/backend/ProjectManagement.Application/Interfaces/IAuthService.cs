@@ -13,8 +13,8 @@ namespace ProjectManagement.Application.Interfaces
 
         Task RegisterAsync(RegisterRequest request);
 
-        Task<LoginResponse> RefreshTokenAsync(string refreshToken);
+        Task<LoginResponse> RefreshTokenAsync(RefreshTokenRequest request);
 
-        Task LogoutAsync(Guid userId);
+        Task LogoutAsync(LogoutRequest request);
     }
 }

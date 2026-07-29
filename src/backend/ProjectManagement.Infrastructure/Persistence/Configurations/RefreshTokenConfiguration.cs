@@ -18,11 +18,29 @@ namespace ProjectManagement.Infrastructure.Persistence.Configurations
             builder.HasKey(x => x.Id);
 
             builder.Property(x => x.Token)
+                   .IsRequired()
+                   .HasMaxLength(512);
+
+            builder.Property(x => x.CreatedAt)
                    .IsRequired();
+
+            builder.Property(x => x.ExpiryDate)
+                   .IsRequired();
+
+            builder.Property(x => x.IsRevoked)
+                   .IsRequired();
+
+            builder.Property(x => x.RevokedAt);
+
+            builder.HasIndex(x => x.Token)
+                   .IsUnique();
+
+            builder.HasIndex(x => x.UserId);
 
             builder.HasOne(x => x.User)
                    .WithMany(x => x.RefreshTokens)
-                   .HasForeignKey(x => x.UserId);
+                   .HasForeignKey(x => x.UserId)
+                   .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -33,10 +33,18 @@ namespace ProjectManagement.Infrastructure.Persistence.Configurations
                    .IsUnique();
 
             builder.Property(x => x.PasswordHash)
-                   .IsRequired();
+                   .IsRequired()
+                   .HasMaxLength(500);
 
             builder.Property(x => x.Role)
-                   .HasConversion<string>();
+                   .HasConversion<string>()
+                   .HasMaxLength(50)
+                   .IsRequired();
+
+            builder.HasMany(x => x.RefreshTokens)
+                   .WithOne(x => x.User)
+                   .HasForeignKey(x => x.UserId)
+                   .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
